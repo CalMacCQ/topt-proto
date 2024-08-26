@@ -8,7 +8,7 @@ from .gadgetisation import (
 from .utils import (
     check_phasepolybox,
     check_rz_angles,
-    get_n_conditional_paulis,
+    get_n_conditional_xpaulis,
     initialise_registers,
     reverse_circuit,
     tensor_from_x_index,
@@ -23,7 +23,7 @@ __all__ = [
     "get_n_internal_hadamards",
     "check_rz_angles",
     "check_phasepolybox",
-    "get_n_conditional_paulis",
+    "get_n_conditional_xpaulis",
     "initialise_registers",
     "reverse_circuit",
     "tensor_from_x_index",

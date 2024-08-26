@@ -61,3 +61,6 @@ def test_conditional_counting() -> None:
         condition_value=0,
     )
     assert get_n_conditional_xpaulis(circ) == 2
+
+
+test_clifford_plus_t_checking()
