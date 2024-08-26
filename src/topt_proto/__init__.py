@@ -6,7 +6,7 @@ from .gadgetisation import (
     get_n_internal_hadamards,
 )
 from .utils import (
-    check_phasepolybox,
+    check_phasepolybox_angles,
     check_rz_angles,
     get_n_conditional_xpaulis,
     initialise_registers,
@@ -24,7 +24,7 @@ __all__ = [
     "gadgetise_hadamards",
     "get_n_internal_hadamards",
     "check_rz_angles",
-    "check_phasepolybox",
+    "check_phasepolybox_angles",
     "get_n_conditional_xpaulis",
     "initialise_registers",
     "reverse_circuit",

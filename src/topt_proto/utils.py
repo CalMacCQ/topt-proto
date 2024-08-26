@@ -23,6 +23,7 @@ def check_rz_angles(circ: Circuit) -> bool:
     all_non_clifford_ops = list(filter(_is_non_clifford, all_circuit_ops))
 
     all_rz_ops = circ.ops_of_type(OpType.Rz)
+
     all_t_ops = circ.ops_of_type(OpType.T)
 
     all_non_clifford_rz_ops = list(filter(_is_non_clifford, all_rz_ops))
@@ -41,7 +42,7 @@ def check_rz_angles(circ: Circuit) -> bool:
 CLIFFORD_PLUS_T_PREDICATE = UserDefinedPredicate(check_rz_angles)
 
 
-def check_phasepolybox(ppb: PhasePolyBox) -> bool:
+def check_phasepolybox_angles(ppb: PhasePolyBox) -> bool:
     """Check that the underlying Circuit for a PhasePolyBox is Clifford + T."""
     return CLIFFORD_PLUS_T_PREDICATE.verify(ppb.get_circuit())
 
