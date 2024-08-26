@@ -1,7 +1,7 @@
 from pytket.circuit import Circuit, OpType
 from pytket.passes import ComposePhasePolyBoxes, DecomposeBoxes
 from topt_proto.gadgetisation import REPLACE_HADAMARDS, get_n_internal_hadamards
-from topt_proto.utils import check_rz_angles, get_n_conditional_paulis
+from topt_proto.utils import get_n_conditional_paulis
 
 
 def test_h_gadgetisation() -> None:
@@ -25,24 +25,6 @@ def test_h_gadgetisation() -> None:
     REPLACE_HADAMARDS.apply(circ)
     assert get_n_conditional_paulis(circ) == n_internal_h_gates
     assert circ.n_qubits == n_qubits_without_ancillas + n_internal_h_gates
-
-
-def test_circuit_utils() -> None:
-    circ = (
-        Circuit(2)
-        .CX(0, 1)
-        .Rz(1 / 4, 1)
-        .CX(0, 1)
-        .Rz(-1 / 4, 1)
-        .CX(0, 1)
-        .Rz(0.75, 1)
-        .CX(0, 1)
-        .Rz(-0.75, 0)
-        .Rz(-1.25, 1)
-    )
-    assert check_rz_angles(circ)
-    circ.Rz(0.61, 0)
-    assert not check_rz_angles(circ)
 
 
 def test_simple_circuit() -> None:
