@@ -1,4 +1,4 @@
-from topt_proto import check_rz_angles, check_phasepolybox, get_n_conditional_paulis
+from topt_proto import check_rz_angles, check_phasepolybox, get_n_conditional_xpaulis
 from pytket._tket.circuit import Circuit, PhasePolyBox
 from pytket._tket.unit_id import Bit, Qubit
 
@@ -34,30 +34,30 @@ def test_phasepolybox_checking() -> None:
 def test_conditional_counting() -> None:
     circ = Circuit(3).X(0).CCX(0, 1, 2)
     circ.measure_all()
-    assert get_n_conditional_paulis(circ) == 0
+    assert get_n_conditional_xpaulis(circ) == 0
     circ.X(
         Qubit(0),
         condition_bits=[Bit(0)],
         condition_value=1,
     )
-    assert get_n_conditional_paulis(circ) == 1
+    assert get_n_conditional_xpaulis(circ) == 1
     circ.Y(
         Qubit(0),
         condition_bits=[Bit(0)],
         condition_value=1,
     )
     # Y is not counted, only X
-    assert get_n_conditional_paulis(circ) == 1
+    assert get_n_conditional_xpaulis(circ) == 1
     circ.CZ(
         Qubit(0),
         Qubit(1),
         condition_bits=[Bit(0)],
         condition_value=1,
     )
-    assert get_n_conditional_paulis(circ) == 1
+    assert get_n_conditional_xpaulis(circ) == 1
     circ.X(
         Qubit(2),
         condition_bits=[Bit(1)],
         condition_value=0,
     )
-    assert get_n_conditional_paulis(circ) == 2
+    assert get_n_conditional_xpaulis(circ) == 2

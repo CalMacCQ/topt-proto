@@ -1,7 +1,7 @@
 from pytket.circuit import Circuit, OpType
 from pytket.passes import ComposePhasePolyBoxes
 from topt_proto.gadgetisation import REPLACE_HADAMARDS, get_n_internal_hadamards
-from topt_proto.utils import get_n_conditional_paulis
+from topt_proto.utils import get_n_conditional_xpaulis
 
 
 def test_simple_circuit() -> None:
@@ -15,11 +15,11 @@ def test_simple_circuit() -> None:
     # draw(circ)
     REPLACE_HADAMARDS.apply(circ)
     assert circ.n_qubits == 5
-    assert get_n_conditional_paulis(circ) == n_internal_h_gates
+    assert get_n_conditional_xpaulis(circ) == n_internal_h_gates
     # draw(circ)
-    assert get_n_conditional_paulis(circ) == 2
+    assert get_n_conditional_xpaulis(circ) == 2
     # PROPAGATE_TERMINAL_PAULI.apply(circ)
-    # assert get_n_conditional_paulis(circ) == 1
+    # assert get_n_conditional_xpaulis(circ) == 1
     # draw(circ)
     # PROPAGATE_TERMINAL_PAULI.apply(circ)
     # draw(circ)

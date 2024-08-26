@@ -1,7 +1,7 @@
 from pytket._tket.circuit import Circuit
 from pytket.passes import DecomposeBoxes, ComposePhasePolyBoxes
 from topt_proto.gadgetisation import REPLACE_HADAMARDS, get_n_internal_hadamards
-from topt_proto.utils import get_n_conditional_paulis
+from topt_proto.utils import get_n_conditional_xpaulis
 
 
 def test_h_gadgetisation() -> None:
@@ -23,5 +23,5 @@ def test_h_gadgetisation() -> None:
     ComposePhasePolyBoxes().apply(circ)
     n_internal_h_gates = get_n_internal_hadamards(circ)
     REPLACE_HADAMARDS.apply(circ)
-    assert get_n_conditional_paulis(circ) == n_internal_h_gates
+    assert get_n_conditional_xpaulis(circ) == n_internal_h_gates
     assert circ.n_qubits == n_qubits_without_ancillas + n_internal_h_gates
