@@ -18,15 +18,23 @@ def check_rz_angles(circ: Circuit) -> bool:
         no_rz_error = "Circuit does not contain any Rz gates."
         raise ValueError(no_rz_error)
 
-    rz_op_list = circ.ops_of_type(OpType.Rz)
+    all_circuit_ops = [cmd.op for cmd in circ]
 
-    non_clifford_rz_ops = list(filter(_is_non_clifford, rz_op_list))
+    all_non_clifford_ops = list(filter(_is_non_clifford, all_circuit_ops))
+
+    all_rz_ops = circ.ops_of_type(OpType.Rz)
+    all_t_ops = circ.ops_of_type(OpType.T)
+
+    all_non_clifford_rz_ops = list(filter(_is_non_clifford, all_rz_ops))
+
+    if len(all_non_clifford_ops) > len(all_non_clifford_rz_ops + all_t_ops):
+        raise ValueError("We only check whether single qubit Z rotations are Clifford.")
 
     allowed_non_clifford_angles = [0.25, 0.75, 1.25, 1.75]
 
     return all(
         abs(op.params[0]) % 2 in allowed_non_clifford_angles
-        for op in non_clifford_rz_ops
+        for op in all_non_clifford_rz_ops
     )
 
 
