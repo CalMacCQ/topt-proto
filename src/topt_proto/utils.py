@@ -1,7 +1,7 @@
 from pytket import Qubit
 from pytket._tket.circuit import Circuit, Conditional, OpType, PhasePolyBox, Op
 from pytket.pauli import Pauli, QubitPauliTensor
-from pytket.predicates import NoSymbolsPredicate
+from pytket.predicates import NoSymbolsPredicate, UserDefinedPredicate
 
 
 def _is_non_clifford(op: Op) -> bool:
@@ -30,10 +30,12 @@ def check_rz_angles(circ: Circuit) -> bool:
     )
 
 
+CLIFFORD_PLUS_T_PREDICATE = UserDefinedPredicate(check_rz_angles)
+
+
 def check_phasepolybox(ppb: PhasePolyBox) -> bool:
     """Check that the underlying Circuit for a PhasePolyBox is Clifford + T."""
-    circ = ppb.get_circuit()
-    return check_rz_angles(circ)
+    return CLIFFORD_PLUS_T_PREDICATE.verify(ppb.get_circuit())
 
 
 def _is_conditional_pauli_x(operation: Conditional) -> bool:

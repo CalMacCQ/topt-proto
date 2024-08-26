@@ -1,4 +1,8 @@
-from topt_proto import check_rz_angles, check_phasepolybox, get_n_conditional_xpaulis
+from topt_proto import (
+    check_phasepolybox,
+    get_n_conditional_xpaulis,
+    CLIFFORD_PLUS_T_PREDICATE,
+)
 from pytket._tket.circuit import Circuit, PhasePolyBox
 from pytket._tket.unit_id import Bit, Qubit
 
@@ -17,9 +21,9 @@ def test_clifford_plus_t_checking() -> None:
         .Rz(-0.75, 0)
         .Rz(-1.25, 1)
     )
-    assert check_rz_angles(circ)
+    assert CLIFFORD_PLUS_T_PREDICATE.verify(circ)
     circ.Rz(0.61, 0)
-    assert not check_rz_angles(circ)
+    assert not CLIFFORD_PLUS_T_PREDICATE.verify(circ)
 
 
 def test_phasepolybox_checking() -> None:
