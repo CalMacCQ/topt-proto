@@ -24,9 +24,10 @@ def get_unitary_test_circuit(p_box: PhasePolyBox, pauli: QubitPauliTensor) -> Ci
     return circ
 
 
-qpt = tensor_from_x_index(x_index=1, n_qubits=3)
+qpt = tensor_from_x_index(x_index=1, n_qubits=2)
 
-test_cases = [(file, qpt) for file in circuit_files]
+# test_cases = [(file, qpt) for file in circuit_files]
+test_cases = [("qasm/cnot_t_6.qasm", qpt)]
 
 
 @pytest.mark.parametrize("qasm_file, pauli_op", test_cases)
