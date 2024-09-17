@@ -12,6 +12,7 @@ from .utils import (
     initialise_registers,
     reverse_circuit,
     tensor_from_x_index,
+    REPLACE_T_WITH_RZ,
 )
 
 __all__ = [
@@ -27,4 +28,5 @@ __all__ = [
     "initialise_registers",
     "reverse_circuit",
     "tensor_from_x_index",
+    "REPLACE_T_WITH_RZ",
 ]
