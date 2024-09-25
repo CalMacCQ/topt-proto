@@ -20,7 +20,7 @@ PAULI_DICT = {
 def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
     """Create a Circuit comprised of single qubit Pauli ops from a QubitPauliTensor."""
     pauli_circ = Circuit(len(pauli_tensor.string.to_list()))
-
+    print(pauli_tensor)
     for qubit, pauli_op in pauli_tensor.string.map.items():
         pauli_circ.add_gate(PAULI_DICT[pauli_op], [qubit])
 
@@ -29,8 +29,10 @@ def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
 
 def _get_reversible_tableau(pbox: PhasePolyBox) -> UnitaryTableau:
     # cheat by synthesising the CNOT circuit with qiskit and converting
-    qc = synth_cnot_count_full_pmh(pbox.linear_transformation, section_size=2)
-    qc2 = qc.reverse_bits()  # correct for endianness
+    qc = synth_cnot_count_full_pmh(
+        pbox.linear_transformation, section_size=2
+    )  # correct for endianness
+    qc2 = qc.reverse_bits()
     tkc_cnot = qiskit_to_tk(qc2)
     return UnitaryTableau(tkc_cnot)
 
@@ -92,7 +94,6 @@ def _get_phase_gadget_circuit(pauli_tensors: list[QubitPauliTensor]) -> Circuit:
     )
 
     DecomposeBoxes().apply(pauli_gadget_circ)
-
     return pauli_gadget_circ
 
 
@@ -110,7 +111,7 @@ def get_pauli_conjugate(
 def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Circuit:
     """Synthesise a Circuit implementing the end of Circuit Clifford Operator C."""
 
-    # Get P' = L† * P * L
+    # Get P' = L * P * L†
     new_pauli: QubitPauliTensor = get_pauli_conjugate(pbox, input_pauli)
 
     # Create a Circuit with the Pauli tensor P'
@@ -128,7 +129,6 @@ def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Ci
     # Get a circuit to implement the Q operator sequence
     operator_circ: Circuit = _get_phase_gadget_circuit(q_sequence)
 
-    # Combine circuits for Q and P'
-    operator_circ.add_circuit(pauli_circ, pauli_circ.qubits)
-
-    return operator_circ
+    # Combine circuits for P' and Q
+    pauli_circ.append(operator_circ)
+    return pauli_circ
