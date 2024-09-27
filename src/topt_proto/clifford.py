@@ -4,15 +4,13 @@ from pytket import Qubit
 from pytket._tket.circuit import Circuit, OpType, PauliExpCommutingSetBox
 from pytket.circuit import PhasePolyBox
 from pytket.extensions.qiskit import qiskit_to_tk
-from pytket.passes import DecomposeBoxes, ComposePhasePolyBoxes
+from pytket.passes import DecomposeBoxes
 from pytket.pauli import Pauli, QubitPauliTensor
 from pytket.tableau import UnitaryTableau
 from qiskit.synthesis import synth_cnot_count_full_pmh
 
-from typing import TypeVar
-
-
-from pytket.circuit.display import view_browser as draw
+### Background discussed here
+#  -> https://quantumcomputing.stackexchange.com/questions/39930/resynthesising-a-clifford-from-a-phase-polynomial-and-a-pauli-string
 
 PAULI_DICT = {
     Pauli.I: OpType.noop,
@@ -25,7 +23,6 @@ PAULI_DICT = {
 def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
     """Create a Circuit comprised of single qubit Pauli ops from a QubitPauliTensor."""
     pauli_circ = Circuit(len(pauli_tensor.string.to_list()))
-
     for qubit, pauli_op in pauli_tensor.string.map.items():
         pauli_circ.add_gate(PAULI_DICT[pauli_op], [qubit])
 
@@ -34,18 +31,21 @@ def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
 
 def _get_reversible_tableau(pbox: PhasePolyBox) -> UnitaryTableau:
     # cheat by synthesising the CNOT circuit with qiskit and converting
-    qc = synth_cnot_count_full_pmh(pbox.linear_transformation, section_size=2)
-    qc2 = qc.reverse_bits()  # correct for endianness
+    qc = synth_cnot_count_full_pmh(
+        pbox.linear_transformation, section_size=2
+    )  # correct for endianness
+    qc2 = qc.reverse_bits()
     tkc_cnot = qiskit_to_tk(qc2)
     return UnitaryTableau(tkc_cnot)
 
 
 def _parities_to_pauli_tensors(pbox: PhasePolyBox) -> list[QubitPauliTensor]:
     phase_poly = pbox.phase_polynomial
-    tensor_list = []
+    tensor_list: list[QubitPauliTensor] = []
     for parity, phase in phase_poly.items():
-        pauli_list = []
-        qubit_list = []
+        assert isinstance(phase, float)
+        pauli_list: list[Pauli] = []
+        qubit_list: list[Qubit] = []
         for count, boolean in enumerate(parity):
             qubit_list.append(Qubit(count))
             if boolean:
@@ -68,11 +68,11 @@ def _get_updated_paulis(
     new_pauli: QubitPauliTensor,
 ) -> list[QubitPauliTensor]:
 
-    new_tensors = []
+    new_tensors: list[QubitPauliTensor] = []
 
     for pauli_op in pauli_tensors:
         if not pauli_op.commutes_with(new_pauli):
-            new_coeff = pauli_op.coeff * (-1)
+            new_coeff = pauli_op.coeff * (-2)
             new_tensors.append(
                 QubitPauliTensor(string=pauli_op.string, coeff=new_coeff),
             )
@@ -81,10 +81,10 @@ def _get_updated_paulis(
 
 
 def _get_phase_gadget_circuit(pauli_tensors: list[QubitPauliTensor]) -> Circuit:
-    pauli_ops = []
+    pauli_ops: list[tuple[list[Pauli], float]] = []
     for tensor in pauli_tensors:
         pauli_list = list(tensor.string.map.values())
-        pair = (pauli_list, tensor.coeff.real)
+        pair: tuple[list[Pauli], float] = (pauli_list, tensor.coeff.real)
         pauli_ops.append(pair)
 
     pauli_gadgets_sequence = PauliExpCommutingSetBox(pauli_ops)
@@ -96,7 +96,6 @@ def _get_phase_gadget_circuit(pauli_tensors: list[QubitPauliTensor]) -> Circuit:
     )
 
     DecomposeBoxes().apply(pauli_gadget_circ)
-
     return pauli_gadget_circ
 
 
@@ -111,62 +110,27 @@ def get_pauli_conjugate(
     return l_tableau.get_row_product(input_pauli)
 
 
-def _get_daggered_phasepolybox(pbox: PhasePolyBox) -> PhasePolyBox:
-
-    circuit = pbox.get_circuit()
-
-    dg_circ = circuit.dagger()
-
-    ComposePhasePolyBoxes().apply(dg_circ)
-
-    return dg_circ.get_commands()[0].op
-
-
-T = TypeVar("T")
-
-
-def _merge_lists(list1: list[T], list2: list[T]) -> list[T]:
-    assert len(list1) == len(list2)
-
-    zipped_lists = tuple(zip(list1, list2))
-
-    result_list = []
-    for _ in range(len(zipped_lists)):
-        result_list.extend(zipped_lists[_])
-
-    return result_list
-
-
 def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Circuit:
     """Synthesise a Circuit implementing the end of Circuit Clifford Operator C."""
+
     # Get P' = L * P * L†
     new_pauli: QubitPauliTensor = get_pauli_conjugate(pbox, input_pauli)
 
     # Create a Circuit with the Pauli tensor P'
-    result_circ: Circuit = pauli_tensor_to_circuit(new_pauli)
+    pauli_circ: Circuit = pauli_tensor_to_circuit(new_pauli)
 
-    # Convert U to a list of QubitPauliTensors
-    s_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(pbox)
+    # Get a list of Pauli {Z, I} tensors for D
+    d_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(pbox)
 
-    # Get updated S' sequence
-    s_prime_sequence: list[QubitPauliTensor] = _get_updated_paulis(
-        s_sequence,
+    # Get Q sequence
+    q_sequence: list[QubitPauliTensor] = _get_updated_paulis(
+        d_sequence,
         new_pauli,
     )
 
-    # Get the PhasePolyBox implementing U†
-    u_dg_box: PhasePolyBox = _get_daggered_phasepolybox(pbox)
-
-    # U† as a list of QubitPauliTensors
-    s_dg_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(u_dg_box)
-
-    # Get Q sequence by combining operators for S' and S† (Q = S' * S†)
-    q_operator_list: list[QubitPauliTensor] = s_prime_sequence + s_dg_sequence
-
-    # Synthesise a Phase gadget sequence for Q (Angles should be Clifford)
-    q_operator_circ = _get_phase_gadget_circuit(q_operator_list)
+    # Get a circuit to implement the Q operator sequence
+    operator_circ: Circuit = _get_phase_gadget_circuit(q_sequence)
 
     # Combine circuits for P' and Q
-    result_circ.add_circuit(q_operator_circ, result_circ.qubits)
-
-    return result_circ
+    pauli_circ.append(operator_circ)
+    return pauli_circ
