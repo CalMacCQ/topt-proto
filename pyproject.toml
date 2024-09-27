@@ -9,7 +9,9 @@ readme = "README.md"
 python = "^3.11"
 pytket = "^1.30.0"
 pytest = "^8.2.2"
-pytket-qiskit = "^0.55.0"
+ruff = "^0.6.8"
+black = "^24.8.0"
+qiskit = "^1.2.2"
 
 
 [build-system]
