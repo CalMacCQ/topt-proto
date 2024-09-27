@@ -9,6 +9,7 @@ readme = "README.md"
 python = "^3.11"
 pytket = "^1.30.0"
 qiskit = "^1.2.2"
+pytket-qiskit = "^0.56.0"
 
 
 [tool.poetry.group.dev.dependencies]
