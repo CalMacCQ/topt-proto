@@ -16,7 +16,7 @@ circuit_files = glob("qasm/*.qasm")
 
 
 def get_unitary_test_circuit(
-    p_box: PhasePolyBox, pauli: QubitPauliTensor, decompose=False
+    p_box: PhasePolyBox, pauli: QubitPauliTensor, decompose: bool = False
 ) -> Circuit:
     circ = Circuit(p_box.n_qubits)
     u_circ = p_box.get_circuit()
@@ -25,21 +25,15 @@ def get_unitary_test_circuit(
     pauli_circ: Circuit = pauli_tensor_to_circuit(pauli)
     circ.append(pauli_circ)
     circ.add_gate(PhasePolyBox(u_dg_circ), u_dg_circ.qubits)
-    # draw(circ)
     if decompose:
         DecomposeBoxes().apply(circ)
     return circ
 
 
-qpt = tensor_from_x_index(x_index=1, n_qubits=2)
-
-test_cases = [(file, qpt) for file in circuit_files]
-# test_cases = [("qasm/cnot_t_6.qasm", qpt)]
-
-
-@pytest.mark.parametrize("qasm_file, pauli_op", test_cases)
-def test_clifford_synthesis(qasm_file: str, pauli_op: QubitPauliTensor) -> None:
+@pytest.mark.parametrize("qasm_file", circuit_files)
+def test_clifford_synthesis(qasm_file: str) -> None:
     phase_poly_circ = circuit_from_qasm(qasm_file)
+    pauli_op = tensor_from_x_index(x_index=1, n_qubits=phase_poly_circ.n_qubits)
     REPLACE_T_WITH_RZ.apply(phase_poly_circ)
     phase_poly_box = PhasePolyBox(phase_poly_circ)
     clifford_circ = synthesise_clifford(pbox=phase_poly_box, input_pauli=pauli_op)
