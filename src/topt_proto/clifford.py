@@ -9,6 +9,9 @@ from pytket.pauli import Pauli, QubitPauliTensor
 from pytket.tableau import UnitaryTableau
 from qiskit.synthesis import synth_cnot_count_full_pmh
 
+### Background discussed here
+#  -> https://quantumcomputing.stackexchange.com/questions/39930/resynthesising-a-clifford-from-a-phase-polynomial-and-a-pauli-string
+
 PAULI_DICT = {
     Pauli.I: OpType.noop,
     Pauli.X: OpType.X,
@@ -20,7 +23,6 @@ PAULI_DICT = {
 def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
     """Create a Circuit comprised of single qubit Pauli ops from a QubitPauliTensor."""
     pauli_circ = Circuit(len(pauli_tensor.string.to_list()))
-    print(pauli_tensor)
     for qubit, pauli_op in pauli_tensor.string.map.items():
         pauli_circ.add_gate(PAULI_DICT[pauli_op], [qubit])
 
@@ -117,12 +119,12 @@ def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Ci
     # Create a Circuit with the Pauli tensor P'
     pauli_circ: Circuit = pauli_tensor_to_circuit(new_pauli)
 
-    # Get a list of Pauli {Z, I} tensors for S
-    s_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(pbox)
+    # Get a list of Pauli {Z, I} tensors for D
+    d_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(pbox)
 
     # Get Q sequence
     q_sequence: list[QubitPauliTensor] = _get_updated_paulis(
-        s_sequence,
+        d_sequence,
         new_pauli,
     )
 
