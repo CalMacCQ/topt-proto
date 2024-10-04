@@ -13,6 +13,7 @@ from .utils import (
     reverse_circuit,
     tensor_from_x_index,
     CLIFFORD_PLUS_T_PREDICATE,
+    REPLACE_T_WITH_RZ,
 )
 
 __all__ = [
@@ -29,4 +30,5 @@ __all__ = [
     "initialise_registers",
     "reverse_circuit",
     "tensor_from_x_index",
+    "REPLACE_T_WITH_RZ",
 ]

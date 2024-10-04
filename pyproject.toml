@@ -8,9 +8,14 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.11"
 pytket = "^1.30.0"
-pytest = "^8.2.2"
-pytket-qiskit = "^0.55.0"
+qiskit = "^1.2.2"
+pytket-qiskit = "^0.56.0"
 
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.6.8"
+black = "^24.8.0"
+pytest = "^8.3.3"
 
 [build-system]
 requires = ["poetry-core"]

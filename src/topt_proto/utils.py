@@ -2,11 +2,12 @@ from pytket import Qubit
 from pytket._tket.circuit import Circuit, Conditional, OpType, PhasePolyBox, Op
 from pytket.pauli import Pauli, QubitPauliTensor
 from pytket.predicates import NoSymbolsPredicate, UserDefinedPredicate
+from pytket.predicates import NoSymbolsPredicate
+from pytket.passes import CustomPass
 
 
 def _is_non_clifford(op: Op) -> bool:
     return not op.is_clifford()
-
 
 def check_rz_angles(circ: Circuit) -> bool:
     """Check that all Rz gates in a Circuit can be implemented with Clifford+T gates."""
@@ -88,3 +89,18 @@ def reverse_circuit(circ: Circuit) -> Circuit:
             new_circ.add_gate(cmd.op, cmd.args)
 
     return new_circ
+
+
+def convert_t_to_rz(circ: Circuit) -> Circuit:
+    circ_prime = Circuit(circ.n_qubits)
+
+    for cmd in circ:
+        if cmd.op.type == OpType.T:
+            circ_prime.Rz(0.25, cmd.qubits[0])
+        else:
+            circ_prime.add_gate(cmd.op.type, cmd.op.params, cmd.qubits)
+
+    return circ_prime
+
+
+REPLACE_T_WITH_RZ = CustomPass(convert_t_to_rz)
