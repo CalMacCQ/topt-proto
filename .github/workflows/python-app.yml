@@ -26,7 +26,7 @@ jobs:
         poetry install
     - name: Run ruff
       run: |
-          ruff check . 
+          poetry run ruff check . 
     - name: Test with pytest
       run: |
         cd tests
