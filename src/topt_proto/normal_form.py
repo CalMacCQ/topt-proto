@@ -13,7 +13,7 @@ from pytket.predicates import GateSetPredicate
 from pytket.unit_id import Bit, Qubit  # noqa: TCH002
 
 from .utils import (
-    get_n_conditional_paulis,
+    get_n_conditional_xpaulis,
     initialise_registers,
     reverse_circuit,
 )
@@ -32,7 +32,7 @@ PAULI_PROP_PREDICATE = GateSetPredicate(PAULI_PROP_GATES)
 
 
 def _get_terminal_pauli_x_args(circ: Circuit) -> tuple[Bit, Qubit]:
-    if get_n_conditional_paulis(circ) < 1:
+    if get_n_conditional_xpaulis(circ) < 1:
         msg = "Circuit contains no conditional X gates."
         raise ValueError(msg)
     for cmd in reversed(circ.get_commands()):
@@ -119,7 +119,7 @@ def _get_conjugation(box: PhasePolyBox | CircBox, x_index: int) -> CircBox:
 
 # PROPOGATE_ALL_TERMINAL_PAULIS = RepeatWithMetricPass(
 #    PROPAGATE_TERMINAL_PAULI,
-#    get_n_conditional_paulis,
+#    get_n_conditional_xpaulis,
 # )
 
 
@@ -145,7 +145,7 @@ def _get_v_box(circ: Circuit) -> CircBox:
 
 
 def _construct_partial_circuit(circ: Circuit) -> Circuit:
-    if get_n_conditional_paulis(circ) < 1:
+    if get_n_conditional_xpaulis(circ) < 1:
         msg = "Circuit contains no conditional X gates."
         raise ValueError(msg)
 

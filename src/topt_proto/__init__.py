@@ -6,12 +6,13 @@ from .gadgetisation import (
     get_n_internal_hadamards,
 )
 from .utils import (
-    check_phasepolybox,
+    check_phasepolybox_angles,
     check_rz_angles,
-    get_n_conditional_paulis,
+    get_n_conditional_xpaulis,
     initialise_registers,
     reverse_circuit,
     tensor_from_x_index,
+    CLIFFORD_PLUS_T_PREDICATE,
     REPLACE_T_WITH_RZ,
 )
 
@@ -19,12 +20,13 @@ __all__ = [
     "synthesise_clifford",
     "pauli_tensor_to_circuit",
     "HADAMARD_REPLACE_PREDICATE",
+    "CLIFFORD_PLUS_T_PREDICATE",
     "REPLACE_HADAMARDS",
     "gadgetise_hadamards",
     "get_n_internal_hadamards",
     "check_rz_angles",
-    "check_phasepolybox",
-    "get_n_conditional_paulis",
+    "check_phasepolybox_angles",
+    "get_n_conditional_xpaulis",
     "initialise_registers",
     "reverse_circuit",
     "tensor_from_x_index",
