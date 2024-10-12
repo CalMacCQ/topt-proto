@@ -46,7 +46,7 @@ def get_pauli_conjugate(
 ) -> QubitPauliTensor:
     """Given a PhasePolyBox (U) and a QubitPauliTensor (P), returns P' = L P L†."""
 
-    l_cnot_circuit = _get_cnot_circuit(pbox=pbox)
+    l_cnot_circuit: Circuit = get_cnot_circuit(pbox=pbox)
 
     # Get L as a Tableau
     l_tableau = UnitaryTableau(l_cnot_circuit)
