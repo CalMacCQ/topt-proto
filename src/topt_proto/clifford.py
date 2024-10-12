@@ -8,7 +8,6 @@ from pytket.passes import DecomposeBoxes
 from pytket.pauli import Pauli, QubitPauliTensor
 from pytket.tableau import UnitaryTableau
 from qiskit.synthesis import synth_cnot_count_full_pmh
-from pytket.circuit.display import view_browser as draw
 
 ### Background discussed here
 #  -> https://quantumcomputing.stackexchange.com/questions/39930/resynthesising-a-clifford-from-a-phase-polynomial-and-a-pauli-string
