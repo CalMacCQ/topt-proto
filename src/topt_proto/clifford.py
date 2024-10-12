@@ -8,6 +8,7 @@ from pytket.passes import DecomposeBoxes
 from pytket.pauli import Pauli, QubitPauliTensor
 from pytket.tableau import UnitaryTableau
 from qiskit.synthesis import synth_cnot_count_full_pmh
+from pytket.circuit.display import view_browser as draw
 
 ### Background discussed here
 #  -> https://quantumcomputing.stackexchange.com/questions/39930/resynthesising-a-clifford-from-a-phase-polynomial-and-a-pauli-string
@@ -32,11 +33,8 @@ def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
 def get_cnot_circuit(pbox: PhasePolyBox) -> Circuit:
     """Generate a CNOT circuit implementing the linear reversible circuit L."""
     # cheat by synthesising the CNOT circuit with qiskit and converting
-    qc = synth_cnot_count_full_pmh(
-        pbox.linear_transformation, section_size=2
-    )  # correct for endianness
-    qc2 = qc.reverse_bits()
-    tkc_cnot: Circuit = qiskit_to_tk(qc2)
+    qc = synth_cnot_count_full_pmh(pbox.linear_transformation, section_size=2)
+    tkc_cnot: Circuit = qiskit_to_tk(qc)
     return tkc_cnot
 
 
@@ -46,7 +44,7 @@ def get_pauli_conjugate(
 ) -> QubitPauliTensor:
     """Given a PhasePolyBox (U) and a QubitPauliTensor (P), returns P' = L P L†."""
 
-    l_cnot_circuit: Circuit = get_cnot_circuit(pbox=pbox)
+    l_cnot_circuit: Circuit = get_cnot_circuit(pbox=pbox).dagger()
 
     # Get L as a Tableau
     l_tableau = UnitaryTableau(l_cnot_circuit)
