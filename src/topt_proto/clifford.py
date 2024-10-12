@@ -63,7 +63,7 @@ def _parities_to_pauli_tensors(pbox: PhasePolyBox) -> list[QubitPauliTensor]:
         qubit_list: list[Qubit] = []
         for count, boolean in enumerate(parity):
             qubit_list.append(Qubit(count))
-            if boolean:
+            if boolean is True:
                 pauli_list.append(Pauli.Z)
             else:
                 pauli_list.append(Pauli.I)
