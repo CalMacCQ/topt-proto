@@ -29,14 +29,29 @@ def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
     return pauli_circ
 
 
-def _get_reversible_tableau(pbox: PhasePolyBox) -> UnitaryTableau:
+def get_cnot_circuit(pbox: PhasePolyBox) -> Circuit:
+    """Generate a CNOT circuit implementing the linear reversible circuit L."""
     # cheat by synthesising the CNOT circuit with qiskit and converting
     qc = synth_cnot_count_full_pmh(
         pbox.linear_transformation, section_size=2
     )  # correct for endianness
     qc2 = qc.reverse_bits()
-    tkc_cnot = qiskit_to_tk(qc2)
-    return UnitaryTableau(tkc_cnot)
+    tkc_cnot: Circuit = qiskit_to_tk(qc2)
+    return tkc_cnot
+
+
+def get_pauli_conjugate(
+    pbox: PhasePolyBox,
+    input_pauli: QubitPauliTensor,
+) -> QubitPauliTensor:
+    """Given a PhasePolyBox (U) and a QubitPauliTensor (P), returns P' = L P L†."""
+
+    l_cnot_circuit: Circuit = get_cnot_circuit(pbox=pbox)
+
+    # Get L as a Tableau
+    l_tableau = UnitaryTableau(l_cnot_circuit)
+
+    return l_tableau.get_row_product(input_pauli)
 
 
 def _parities_to_pauli_tensors(pbox: PhasePolyBox) -> list[QubitPauliTensor]:
@@ -48,7 +63,7 @@ def _parities_to_pauli_tensors(pbox: PhasePolyBox) -> list[QubitPauliTensor]:
         qubit_list: list[Qubit] = []
         for count, boolean in enumerate(parity):
             qubit_list.append(Qubit(count))
-            if boolean:
+            if boolean is True:
                 pauli_list.append(Pauli.Z)
             else:
                 pauli_list.append(Pauli.I)
@@ -63,7 +78,7 @@ def _parities_to_pauli_tensors(pbox: PhasePolyBox) -> list[QubitPauliTensor]:
     return tensor_list
 
 
-def _get_updated_paulis(
+def get_updated_paulis(
     pauli_tensors: list[QubitPauliTensor],
     new_pauli: QubitPauliTensor,
 ) -> list[QubitPauliTensor]:
@@ -99,17 +114,6 @@ def _get_phase_gadget_circuit(pauli_tensors: list[QubitPauliTensor]) -> Circuit:
     return pauli_gadget_circ
 
 
-def get_pauli_conjugate(
-    pbox: PhasePolyBox,
-    input_pauli: QubitPauliTensor,
-) -> QubitPauliTensor:
-    """Given a PhasePolyBox (U) and a QubitPauliTensor (P), returns P' = L P L†."""
-    # Get L as a Tableau
-    l_tableau = _get_reversible_tableau(pbox)
-
-    return l_tableau.get_row_product(input_pauli)
-
-
 def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Circuit:
     """Synthesise a Circuit implementing the end of Circuit Clifford Operator C."""
 
@@ -123,7 +127,7 @@ def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Ci
     d_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(pbox)
 
     # Get Q sequence
-    q_sequence: list[QubitPauliTensor] = _get_updated_paulis(
+    q_sequence: list[QubitPauliTensor] = get_updated_paulis(
         d_sequence,
         new_pauli,
     )

@@ -1,4 +1,9 @@
-from .clifford import pauli_tensor_to_circuit, synthesise_clifford
+from .clifford import (
+    pauli_tensor_to_circuit,
+    synthesise_clifford,
+    get_cnot_circuit,
+    get_updated_paulis,
+)
 from .gadgetisation import (
     HADAMARD_REPLACE_PREDICATE,
     REPLACE_HADAMARDS,
@@ -17,6 +22,8 @@ from .utils import (
 
 __all__ = [
     "synthesise_clifford",
+    "get_cnot_circuit",
+    "get_updated_paulis",
     "pauli_tensor_to_circuit",
     "HADAMARD_REPLACE_PREDICATE",
     "REPLACE_HADAMARDS",
