@@ -78,7 +78,7 @@ def _parities_to_pauli_tensors(pbox: PhasePolyBox) -> list[QubitPauliTensor]:
     return tensor_list
 
 
-def _get_updated_paulis(
+def get_updated_paulis(
     pauli_tensors: list[QubitPauliTensor],
     new_pauli: QubitPauliTensor,
 ) -> list[QubitPauliTensor]:
@@ -127,7 +127,7 @@ def synthesise_clifford(pbox: PhasePolyBox, input_pauli: QubitPauliTensor) -> Ci
     d_sequence: list[QubitPauliTensor] = _parities_to_pauli_tensors(pbox)
 
     # Get Q sequence
-    q_sequence: list[QubitPauliTensor] = _get_updated_paulis(
+    q_sequence: list[QubitPauliTensor] = get_updated_paulis(
         d_sequence,
         new_pauli,
     )
