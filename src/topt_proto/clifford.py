@@ -29,7 +29,7 @@ def pauli_tensor_to_circuit(pauli_tensor: QubitPauliTensor) -> Circuit:
     return pauli_circ
 
 
-def _get_cnot_circuit(pbox: PhasePolyBox) -> Circuit:
+def get_cnot_circuit(pbox: PhasePolyBox) -> Circuit:
     """Generate a CNOT circuit implementing the linear reversible circuit L."""
     # cheat by synthesising the CNOT circuit with qiskit and converting
     qc = synth_cnot_count_full_pmh(
