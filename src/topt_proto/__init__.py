@@ -19,6 +19,7 @@ from .utils import (
     tensor_from_x_index,
     REPLACE_T_WITH_RZ,
 )
+from .normal_form import PROPAGATE_TERMINAL_PAULI
 
 __all__ = [
     "synthesise_clifford",
@@ -36,4 +37,5 @@ __all__ = [
     "reverse_circuit",
     "tensor_from_x_index",
     "REPLACE_T_WITH_RZ",
+    "PROPAGATE_TERMINAL_PAULI",
 ]

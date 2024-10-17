@@ -11,6 +11,7 @@ from pytket.circuit import (
 )
 from pytket.predicates import GateSetPredicate
 from pytket.unit_id import Bit, Qubit  # noqa: TCH002
+from pytket.passes import CustomPass
 
 from .utils import (
     get_n_conditional_paulis,
@@ -56,65 +57,66 @@ def _get_conjugation(box: PhasePolyBox | CircBox, x_index: int) -> CircBox:
 
 # TODO Refactor this awful propagate_terminal_pauli_x_gate function.
 
-# def propagate_terminal_pauli_x_gate(circ: Circuit) -> Circuit:  # noqa: PLR0912
-#    """Propogates a single Pauli X gate to the end of the Circuit."""
-#    if not PAULI_PROP_PREDICATE.verify(circ):
-#        msg = f"Circuit must be in the {PAULI_PROP_GATES} gateset."
-#        raise ValueError(msg)
-#    reversed_circ = _reverse_circuit(circ)
-#    circ_prime = _initialise_registers(reversed_circ)
-#    pauli_x_args = _get_terminal_pauli_x_args(reversed_circ)
-#    found_match = False
-#    for cmd in reversed_circ:
-#        if cmd.op.type == OpType.PhasePolyBox:
-#            if pauli_x_args[1] in cmd.qubits and not found_match:
-#                found_match = True
-#                uxudg_box = _get_conjugation(
-#                    cmd.op,
-#                    pauli_x_args[1].index[0],
-#                )
-#                circ_prime.add_gate(
-#                    uxudg_box,
-#                    cmd.qubits,
-#                    condition_bits=[pauli_x_args[0]],
-#                    condition_value=1,
-#                )
-#            # Add PhasePolyBox as usual in both cases
-#            circ_prime.add_gate(cmd.op, cmd.qubits)
-#
-#        elif cmd.op.type == OpType.Measure:
-#            circ_prime.Measure(cmd.args[0], cmd.args[1])
-#
-#        elif cmd.op.type == OpType.Conditional:
-#            if cmd.op.op.type != OpType.X:
-#                circ_prime.add_gate(cmd.op, cmd.args)
-#            elif cmd.op.op.type == OpType.X:
-#                if (
-#                    tuple(cmd.args) == pauli_x_args
-#                ):  # check for matching qubits and bits
-#                    pass
-#                else:
-#                    circ_prime.add_gate(cmd.op, cmd.args)
-#            else:
-#                circ_prime.add_gate(cmd.op, cmd.args)
-#
-#        elif cmd.op.type == OpType.CircBox:
-#            if cmd.op.circuit_name == "U X U†":
-#                pass  # TODO propogate The X through the U X Udg and FSWAP
-#            # elif cmd.op.circuit_name == "FSWAP":  # noqa: ERA001
-#            #    pass
-#            else:
-#                circ_prime.add_gate(cmd.op, cmd.args)
-#
-#        elif cmd.op.type == OpType.Barrier:
-#            circ_prime.add_barrier(cmd.qubits)
-#        else:
-#            circ_prime.add_gate(cmd.op.type, cmd.args)
-#
-#    return _reverse_circuit(circ_prime)
+
+def propagate_terminal_pauli_x_gate(circ: Circuit) -> Circuit:  # noqa: PLR0912
+    """Propogates a single Pauli X gate to the end of the Circuit."""
+    if not PAULI_PROP_PREDICATE.verify(circ):
+        msg = f"Circuit must be in the {PAULI_PROP_GATES} gateset."
+        raise ValueError(msg)
+    reversed_circ: Circuit = reverse_circuit(circ)
+    circ_prime = initialise_registers(reversed_circ)
+    pauli_x_args = _get_terminal_pauli_x_args(reversed_circ)
+    found_match = False
+    for cmd in reversed_circ:
+        if cmd.op.type == OpType.PhasePolyBox:
+            if pauli_x_args[1] in cmd.qubits and not found_match:
+                found_match = True
+                uxudg_box = _get_conjugation(
+                    cmd.op,
+                    pauli_x_args[1].index[0],
+                )
+                circ_prime.add_gate(
+                    uxudg_box,
+                    cmd.qubits,
+                    condition_bits=[pauli_x_args[0]],
+                    condition_value=1,
+                )
+            # Add PhasePolyBox as usual in both cases
+            circ_prime.add_gate(cmd.op, cmd.qubits)
+
+        elif cmd.op.type == OpType.Measure:
+            circ_prime.Measure(cmd.args[0], cmd.args[1])
+
+        elif cmd.op.type == OpType.Conditional:
+            if cmd.op.op.type != OpType.X:
+                circ_prime.add_gate(cmd.op, cmd.args)
+            elif cmd.op.op.type == OpType.X:
+                if (
+                    tuple(cmd.args) == pauli_x_args
+                ):  # check for matching qubits and bits
+                    pass
+                else:
+                    circ_prime.add_gate(cmd.op, cmd.args)
+            else:
+                circ_prime.add_gate(cmd.op, cmd.args)
+
+        elif cmd.op.type == OpType.CircBox:
+            if cmd.op.circuit_name == "U X U†":
+                pass  # TODO propogate The X through the U X Udg and FSWAP
+            # elif cmd.op.circuit_name == "FSWAP":  # noqa: ERA001
+            #    pass
+            else:
+                circ_prime.add_gate(cmd.op, cmd.args)
+
+        elif cmd.op.type == OpType.Barrier:
+            circ_prime.add_barrier(cmd.qubits)
+        else:
+            circ_prime.add_gate(cmd.op.type, cmd.args)
+
+    return reverse_circuit(circ_prime)
 
 
-# PROPAGATE_TERMINAL_PAULI = CustomPass(propagate_terminal_pauli_x_gate)
+PROPAGATE_TERMINAL_PAULI = CustomPass(propagate_terminal_pauli_x_gate)
 
 
 # PROPOGATE_ALL_TERMINAL_PAULIS = RepeatWithMetricPass(
