@@ -7,20 +7,29 @@ from topt_proto.gadgetisation import REPLACE_HADAMARDS, get_n_internal_hadamards
 from topt_proto.utils import get_n_conditional_paulis
 
 
-def test_h_gadgetisation() -> None:
-    circ = (
-        Circuit(4)
-        .T(0)
-        .CX(0, 3)
-        .CX(2, 1)
-        .CX(3, 1)
-        .T(3)
-        .H(0)
-        .H(1)
-        .CZ(0, 3)
-        .H(2)
-        .CRy(0.25, 0, 3)
-    )
+circ0 = (
+    Circuit(4)
+    .T(0)
+    .CX(0, 3)
+    .CX(2, 1)
+    .CX(3, 1)
+    .T(3)
+    .H(0)
+    .H(1)
+    .CZ(0, 3)
+    .H(2)
+    .CRy(0.25, 0, 3)
+)
+
+circ1 = Circuit(4).CCX(0, 1, 2).T(2).CX(2, 1).T(1).CCX(0, 1, 2)
+
+circ2 = Circuit(4).CX(0, 3).T(3).H(0).T(2).H(1).CZ(0, 3).H(2).CRy(0.25, 0, 3)
+
+circuits = [circ0, circ2]
+
+
+@pytest.mark.parametrize("circ", circuits)
+def test_h_gadgetisation(circ: Circuit) -> None:
     n_qubits_without_ancillas = circ.n_qubits
     DecomposeBoxes().apply(circ)
     ComposePhasePolyBoxes().apply(circ)
