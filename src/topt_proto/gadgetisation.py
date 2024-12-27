@@ -41,7 +41,7 @@ def _count_hadamards(commands: list[Command]) -> int:
     return h_count
 
 
-def get_clifford_bounds(circ: Circuit) -> tuple[int, int]:
+def get_clifford_boundary(circ: Circuit) -> tuple[int, int]:
     phase_poly_boxes = circ.ops_of_type(OpType.PhasePolyBox)
     first_index = next(
         count for count, box in enumerate(phase_poly_boxes) if not box.is_clifford()
@@ -69,34 +69,28 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
 
     circ_prime.add_barrier(list(z_ancillas))
 
+    lower, upper = get_clifford_boundary(circ)
     ancilla_index = 0
     box_counter = 0
-    inside_clifford_region = True
     for cmd in circ:
-        if cmd.op.is_clifford():
-            if cmd.op.type != OpType.H:
-                box_counter += 1
-                circ_prime.add_gate(cmd.op, cmd.args)
-            else:
-                if not inside_clifford_region:
-                    circ_prime.add_gate(
-                        FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]]
-                    )
-                    circ_prime.Measure(
-                        z_ancillas[ancilla_index], ancilla_bits[ancilla_index]
-                    )
-                    circ_prime.X(
-                        cmd.qubits[0],
-                        condition_bits=[ancilla_bits[ancilla_index]],
-                        condition_value=1,
-                    )
-                    ancilla_index += 1
-                else:
-                    circ_prime.add_gate(cmd.op, cmd.args)
-        else:
+        if cmd.op.type != OpType.H:
             box_counter += 1
-            inside_clifford_region = False
             circ_prime.add_gate(cmd.op, cmd.args)
+        else:
+            inside_boundary = lower < box_counter <= upper
+            if inside_boundary:
+                circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
+                circ_prime.Measure(
+                    z_ancillas[ancilla_index], ancilla_bits[ancilla_index]
+                )
+                circ_prime.X(
+                    cmd.qubits[0],
+                    condition_bits=[ancilla_bits[ancilla_index]],
+                    condition_value=1,
+                )
+                ancilla_index += 1
+            else:
+                circ_prime.add_gate(OpType.H, cmd.qubits)
 
     return circ_prime
 
