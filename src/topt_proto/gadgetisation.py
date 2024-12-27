@@ -44,8 +44,10 @@ def _count_hadamards(commands: list[Command]) -> int:
 # This rather messy helper function tells us the bounds
 #  of the non-Clifford region of our circuit. It gives us back
 #  the indices of the first and last non-Clifford PhasePolyBox.
+# In most cases the bounds will be
+#  (0, circuit.n_gates_of_type(OpType.PhasePolyBox) - 1)).
 # As its possible for a PhasePolyBox to be Clifford, we handle
-# this case. TODO:  maybe clean this up.
+# this case. TODO: Maybe clean this up.
 def get_clifford_boundary(circ: Circuit) -> tuple[int, int]:
     phase_poly_boxes = circ.ops_of_type(OpType.PhasePolyBox)
     first_index = next(
