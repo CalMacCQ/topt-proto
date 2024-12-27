@@ -41,8 +41,33 @@ def _count_hadamards(commands: list[Command]) -> int:
     return h_count
 
 
+# This rather messy helper function tells us the bounds
+#  of the non-Clifford region of our circuit. It gives us back
+#  the indices of the first and last non-Clifford PhasePolyBox.
+# In most cases the bounds will be
+#  (0, circuit.n_gates_of_type(OpType.PhasePolyBox) - 1)).
+# As its possible for a PhasePolyBox to be Clifford, we handle
+# this case. TODO: Maybe clean this up.
+def get_clifford_boundary(circ: Circuit) -> tuple[int, int]:
+    phase_poly_boxes = circ.ops_of_type(OpType.PhasePolyBox)
+    first_index = next(
+        count for count, box in enumerate(phase_poly_boxes) if not box.is_clifford()
+    )
+    assert first_index >= 0
+    last_index = next(
+        len(phase_poly_boxes) - 1 - count
+        for count, box in enumerate(phase_poly_boxes[::-1])
+        if not box.is_clifford()
+    )
+    assert last_index <= len(phase_poly_boxes) - 1
+    return first_index, last_index
+
+
+# Note that this pass assumes that we are in the {H, PhasePolyBox} gateset
+#  (hence the HADAMARD_REPLACE_PREDICATE). Circuits not in this gateset can
+# be converted to it by applying the ComposePhasePolyBoxes pass.
 def gadgetise_hadamards(circ: Circuit) -> Circuit:
-    """Replace all Hadamard gates with measurement gadgets."""
+    """Replace all internal Hadamard gates with measurement gadgets."""
     internal_h_count = get_n_internal_hadamards(circ)
 
     circ_prime = Circuit(circ.n_qubits)
@@ -54,20 +79,33 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
 
     circ_prime.add_barrier(list(z_ancillas))
 
+    lower, upper = get_clifford_boundary(circ)
     ancilla_index = 0
-
+    box_counter = 0
     for cmd in circ:
-        if cmd.op.type != OpType.H:
+        if cmd.op.type == OpType.PhasePolyBox:
+            box_counter += 1
             circ_prime.add_gate(cmd.op, cmd.args)
         else:
-            circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
-            circ_prime.Measure(z_ancillas[ancilla_index], ancilla_bits[ancilla_index])
-            circ_prime.X(
-                cmd.qubits[0],
-                condition_bits=[ancilla_bits[ancilla_index]],
-                condition_value=1,
-            )
-            ancilla_index += 1
+            # Checks whether we are between the first and last non-Clifford gate.
+            inside_boundary = lower < box_counter <= upper
+            if inside_boundary:
+                # If inside boundary, add Hadamard as a measurement gadget.
+                circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
+                circ_prime.add_gate(OpType.H, [z_ancillas[ancilla_index]])
+                circ_prime.Measure(
+                    z_ancillas[ancilla_index], ancilla_bits[ancilla_index]
+                )
+                circ_prime.X(
+                    cmd.qubits[0],
+                    condition_bits=[ancilla_bits[ancilla_index]],
+                    condition_value=1,
+                )
+                ancilla_index += 1
+            else:
+                # If outside boundary, add Hadamard as usual.
+                circ_prime.add_gate(OpType.H, cmd.qubits)
+
     return circ_prime
 
 

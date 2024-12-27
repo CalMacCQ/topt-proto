@@ -9,6 +9,7 @@ from .gadgetisation import (
     REPLACE_HADAMARDS,
     gadgetise_hadamards,
     get_n_internal_hadamards,
+    get_clifford_boundary,
 )
 from .utils import (
     check_phasepolybox,
@@ -29,6 +30,7 @@ __all__ = [
     "REPLACE_HADAMARDS",
     "gadgetise_hadamards",
     "get_n_internal_hadamards",
+    "get_clifford_boundary",
     "check_rz_angles",
     "check_phasepolybox",
     "get_n_conditional_paulis",
