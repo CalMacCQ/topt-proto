@@ -857,9 +857,8 @@ wheels = [
 [[package]]
 name = "topt-proto"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
-    { name = "pytest" },
     { name = "pytket" },
     { name = "pytket-qiskit" },
 ]
@@ -874,7 +873,6 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "pytest", specifier = ">=8.3.4" },
     { name = "pytket", specifier = ">=1.37.0" },
     { name = "pytket-qiskit", specifier = ">=0.62.0" },
 ]

@@ -1,14 +1,17 @@
 [project]
 name = "topt-proto"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python prototype of circuit rewrites related to T gate optimisation "
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "pytket>=1.37.0",
-    "pytket-qiskit>=0.62.0",
-    "pytest>=8.3.4",
+authors = [
+    { name = "CalMacCQ", email = "93673602+CalMacCQ@users.noreply.github.com" },
 ]
+requires-python = ">=3.11"
+dependencies = ["pytket>=1.37.0", "pytket-qiskit>=0.62.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 lint = [
