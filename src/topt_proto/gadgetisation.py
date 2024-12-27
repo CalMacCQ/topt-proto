@@ -73,7 +73,7 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
     ancilla_index = 0
     box_counter = 0
     for cmd in circ:
-        if cmd.op.type != OpType.H:
+        if cmd.op.type == OpType.PhasePolyBox:
             box_counter += 1
             circ_prime.add_gate(cmd.op, cmd.args)
         else:
