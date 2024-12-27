@@ -80,6 +80,7 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
             inside_boundary = lower < box_counter <= upper
             if inside_boundary:
                 circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
+                circ_prime.add_gate(OpType.H, [z_ancillas[ancilla_index]])
                 circ_prime.Measure(
                     z_ancillas[ancilla_index], ancilla_bits[ancilla_index]
                 )
