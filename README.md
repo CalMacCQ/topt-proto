@@ -3,22 +3,23 @@
 Python prototype of circuit rewrites related to T gate optimisation. 
 
 
-NOT WORKING YET
+NOT WORKING YET - just a fun learning project so far.
 
 ## Install
 
 First, clone this repository.
 
-run `poetry` install
+Install with `uv` 
 
 ```shell
-poetry install
+uv sync --all-groups
 ```
 
 ## Run the tests
 
 ```shell
-poetry run pytest
+cd tests
+uv run pytest
 ```
 
 
