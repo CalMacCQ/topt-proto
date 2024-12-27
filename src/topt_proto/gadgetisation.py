@@ -41,6 +41,11 @@ def _count_hadamards(commands: list[Command]) -> int:
     return h_count
 
 
+# This rather messy helper function tells us the bounds
+#  of the non-Clifford region of our circuit. It gives us back
+#  the indices of the first and last non-Clifford PhasePolyBox.
+# As its possible for a PhasePolyBox to be Clifford, we handle
+# this case. TODO:  maybe clean this up.
 def get_clifford_boundary(circ: Circuit) -> tuple[int, int]:
     phase_poly_boxes = circ.ops_of_type(OpType.PhasePolyBox)
     first_index = next(
@@ -56,8 +61,11 @@ def get_clifford_boundary(circ: Circuit) -> tuple[int, int]:
     return first_index, last_index
 
 
+# Note that this pass assumes that we are in the {H, PhasePolyBox} gateset
+#  (hence the HADAMARD_REPLACE_PREDICATE). Circuits not in this gateset can
+# be converted to it by applying the ComposePhasePolyBoxes pass.
 def gadgetise_hadamards(circ: Circuit) -> Circuit:
-    """Replace all Hadamard gates with measurement gadgets."""
+    """Replace all internal Hadamard gates with measurement gadgets."""
     internal_h_count = get_n_internal_hadamards(circ)
 
     circ_prime = Circuit(circ.n_qubits)
@@ -77,8 +85,10 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
             box_counter += 1
             circ_prime.add_gate(cmd.op, cmd.args)
         else:
+            # Checks whether we are between the first and last non-Clifford gate.
             inside_boundary = lower < box_counter <= upper
             if inside_boundary:
+                # If inside boundary, add Hadamard as a measurement gadget.
                 circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
                 circ_prime.add_gate(OpType.H, [z_ancillas[ancilla_index]])
                 circ_prime.Measure(
@@ -91,6 +101,7 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
                 )
                 ancilla_index += 1
             else:
+                # If outside boundary, add Hadamard as usual.
                 circ_prime.add_gate(OpType.H, cmd.qubits)
 
     return circ_prime
