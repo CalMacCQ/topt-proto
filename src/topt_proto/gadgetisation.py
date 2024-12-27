@@ -41,6 +41,21 @@ def _count_hadamards(commands: list[Command]) -> int:
     return h_count
 
 
+def get_clifford_bounds(circ: Circuit) -> tuple[int, int]:
+    phase_poly_boxes = circ.ops_of_type(OpType.PhasePolyBox)
+    first_index = next(
+        count for count, box in enumerate(phase_poly_boxes) if not box.is_clifford()
+    )
+    assert first_index >= 0
+    last_index = next(
+        len(phase_poly_boxes) - 1 - count
+        for count, box in enumerate(phase_poly_boxes[::-1])
+        if not box.is_clifford()
+    )
+    assert last_index <= len(phase_poly_boxes) - 1
+    return first_index, last_index
+
+
 def gadgetise_hadamards(circ: Circuit) -> Circuit:
     """Replace all Hadamard gates with measurement gadgets."""
     internal_h_count = get_n_internal_hadamards(circ)
@@ -55,10 +70,12 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
     circ_prime.add_barrier(list(z_ancillas))
 
     ancilla_index = 0
+    box_counter = 0
     inside_clifford_region = True
     for cmd in circ:
         if cmd.op.is_clifford():
             if cmd.op.type != OpType.H:
+                box_counter += 1
                 circ_prime.add_gate(cmd.op, cmd.args)
             else:
                 if not inside_clifford_region:
@@ -77,6 +94,7 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
                 else:
                     circ_prime.add_gate(cmd.op, cmd.args)
         else:
+            box_counter += 1
             inside_clifford_region = False
             circ_prime.add_gate(cmd.op, cmd.args)
 
