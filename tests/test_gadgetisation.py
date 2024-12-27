@@ -42,7 +42,6 @@ def build_qft_circuit(n_qubits: int) -> Circuit:
 
 
 n_qubit_cases = [2, 3, 7, 10]
-qft_circs = [build_qft_circuit(n) for n in n_qubit_cases]
 
 
 @pytest.mark.parametrize("n_qubits", n_qubit_cases)
