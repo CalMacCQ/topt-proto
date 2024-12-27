@@ -55,19 +55,31 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
     circ_prime.add_barrier(list(z_ancillas))
 
     ancilla_index = 0
-
+    inside_clifford_region = True
     for cmd in circ:
-        if cmd.op.type != OpType.H:
-            circ_prime.add_gate(cmd.op, cmd.args)
+        if cmd.op.is_clifford():
+            if cmd.op.type != OpType.H:
+                circ_prime.add_gate(cmd.op, cmd.args)
+            else:
+                if not inside_clifford_region:
+                    circ_prime.add_gate(
+                        FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]]
+                    )
+                    circ_prime.Measure(
+                        z_ancillas[ancilla_index], ancilla_bits[ancilla_index]
+                    )
+                    circ_prime.X(
+                        cmd.qubits[0],
+                        condition_bits=[ancilla_bits[ancilla_index]],
+                        condition_value=1,
+                    )
+                    ancilla_index += 1
+                else:
+                    circ_prime.add_gate(cmd.op, cmd.args)
         else:
-            circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
-            circ_prime.Measure(z_ancillas[ancilla_index], ancilla_bits[ancilla_index])
-            circ_prime.X(
-                cmd.qubits[0],
-                condition_bits=[ancilla_bits[ancilla_index]],
-                condition_value=1,
-            )
-            ancilla_index += 1
+            inside_clifford_region = False
+            circ_prime.add_gate(cmd.op, cmd.args)
+
     return circ_prime
 
 
