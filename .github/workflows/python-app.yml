@@ -22,12 +22,12 @@ jobs:
         python-version: "3.11"
     - name: Install dependencies
       run: |
-        pip install poetry
-        poetry install
+        pip install uv
+        uv sync
     - name: Run ruff
       run: |
-          poetry run ruff check . 
+          uv run ruff check . 
     - name: Test with pytest
       run: |
         cd tests
-        poetry run pytest --tb=long -rs
+        uv run pytest --tb=long -rs
