@@ -1,0 +1,7 @@
+[project]
+name = "topt-proto"
+version = "0.1.0"
+description = "Python prototype of circuit rewrites related to T gate optimisation"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
