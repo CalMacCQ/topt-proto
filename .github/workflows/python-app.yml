@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install uv
-        uv sync
+        uv sync --all-groups
     - name: Run ruff
       run: |
           uv run ruff check . 
