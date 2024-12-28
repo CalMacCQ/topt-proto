@@ -55,7 +55,7 @@ def test_h_gadgetisation(circ: Circuit) -> None:
     assert circ.n_qubits == n_qubits_without_ancillas + n_internal_h_gates
 
 
-# QFT circuit builder function, used in testing
+# QFT circuit builder function, used in testing.
 def build_qft_circuit(n_qubits: int) -> Circuit:
     circ = Circuit(n_qubits, name="$$QFT$$")
     for i in range(n_qubits):
@@ -67,7 +67,7 @@ def build_qft_circuit(n_qubits: int) -> Circuit:
     return circ
 
 
-# Test the qft circuits for varying number of qubits.
+# Test the QFT circuits for varying number of qubits.
 n_qubit_cases = [2, 3, 7, 10]
 
 

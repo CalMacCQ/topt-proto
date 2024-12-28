@@ -21,10 +21,10 @@ def get_n_internal_hadamards(circ: Circuit) -> int:
 
     # Its Possible that a PhasePolyBox is Clifford. Handled in _count_hadamards.
 
-    # Count number of Hadamards until we encounter a PhasePolyBox
+    # Count the number of Hadamards until we encounter a PhasePolyBox.
     lhs_count = _count_hadamards(circ.get_commands())
 
-    # Same but from the end of the circuit
+    # Same but from the end of the circuit.
     rhs_count = _count_hadamards(reversed(circ.get_commands()))
 
     return total_h_count - (lhs_count + rhs_count)
@@ -92,6 +92,7 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
             if inside_boundary:
                 # If inside boundary, add Hadamard as a measurement gadget.
                 circ_prime.add_gate(FSWAP, [cmd.qubits[0], z_ancillas[ancilla_index]])
+                # Measure the ancilla qubit in the X basis.
                 circ_prime.add_gate(OpType.H, [z_ancillas[ancilla_index]])
                 circ_prime.Measure(
                     z_ancillas[ancilla_index], ancilla_bits[ancilla_index]
