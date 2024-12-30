@@ -19,6 +19,7 @@ from .utils import (
     reverse_circuit,
     tensor_from_x_index,
     REPLACE_T_WITH_RZ,
+    REPLACE_MEASURES,
 )
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "reverse_circuit",
     "tensor_from_x_index",
     "REPLACE_T_WITH_RZ",
+    "REPLACE_MEASURES",
 ]
