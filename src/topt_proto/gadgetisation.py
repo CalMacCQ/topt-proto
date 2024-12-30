@@ -126,7 +126,7 @@ def replace_measures(circ: Circuit) -> Circuit:
             case OpType.Conditional:
                 if cmd.op.width != 1:
                     raise NotImplementedError(
-                        "Replacement not implemented for more than one control bit."
+                        f"Replacement not implemented for more than one condition bit ({cmd.op} has {cmd.op.width})."
                     )
                 if cmd.op.op.type == OpType.X:
                     target_qubit = cmd.qubits[0]
