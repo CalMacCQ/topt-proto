@@ -91,38 +91,3 @@ def convert_t_to_rz(circ: Circuit) -> Circuit:
 
 
 REPLACE_T_WITH_RZ = CustomPass(convert_t_to_rz)
-
-
-def replace_measures(circ: Circuit) -> Circuit:
-    circ_prime = initialise_registers(circ)
-
-    for cmd in circ:
-        match cmd.op.type:
-            case OpType.Measure:
-                hold_qubit = cmd.qubits[0]
-                continue
-
-            case OpType.Conditional:
-                if cmd.op.width != 1:
-                    raise NotImplementedError(
-                        "Replacement not implemented for more than one control bit."
-                    )
-                base_op = cmd.op.op
-                if base_op.type == OpType.X:
-                    circ_prime.CX(hold_qubit, cmd.qubits[0])
-                elif base_op.type == OpType.U1:
-                    circ_prime.CU1(cmd.op.params, hold_qubit, cmd.qubits[0])
-                else:
-                    raise NotImplementedError(
-                        f"Replacement for {base_op.type} not implemented."
-                    )
-            case OpType.Barrier:
-                circ_prime.add_barrier(cmd.qubits)
-            case _:
-
-                circ_prime.add_gate(cmd.op, cmd.args)
-
-    return circ_prime
-
-
-REPLACE_MEASURES = CustomPass(replace_measures)
