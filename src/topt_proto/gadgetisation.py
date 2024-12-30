@@ -128,13 +128,12 @@ def replace_measures(circ: Circuit) -> Circuit:
                     raise NotImplementedError(
                         "Replacement not implemented for more than one control bit."
                     )
-                base_op = cmd.op.op
-                if base_op.type == OpType.X:
+                if cmd.op.op.type == OpType.X:
                     target_qubit = cmd.qubits[0]
                     circ_prime.CX(control_qubit, target_qubit)
                 else:
                     raise NotImplementedError(
-                        f"Replacement for {base_op.type} not implemented."
+                        f"Replacement for {cmd.op.op.type} not implemented."
                     )
             case OpType.Barrier:
                 circ_prime.add_barrier(cmd.qubits)
