@@ -16,6 +16,7 @@ def test_clifford_plus_t_checking() -> None:
     circ = (
         Circuit(2)
         .CX(0, 1)
+        .S(1)
         .Rz(1 / 4, 1)
         .CX(0, 1)
         .Rz(-1 / 4, 1)
@@ -26,18 +27,18 @@ def test_clifford_plus_t_checking() -> None:
         .Rz(-0.75, 0)
         .Rz(-1.25, 1)
     )
-    assert check_rz_angles(circ)
+    assert CLIFFORD_PLUS_T_PREDICATE.verify(circ)
     circ.Rz(0.61, 0)
-    assert not check_rz_angles(circ)
+    assert not CLIFFORD_PLUS_T_PREDICATE.verify(circ)
 
 
 def test_phasepolybox_checking() -> None:
     circ = Circuit(2).CX(0, 1).Rz(0.5, 0).CX(0, 1)
     ppb1 = PhasePolyBox(circ)
-    assert check_phasepolybox(ppb1)
+    assert check_phasepolybox_angles(ppb1)
     circ.Rz(0.19, 1)
     ppb2 = PhasePolyBox(circ)
-    assert not check_phasepolybox(ppb2)
+    assert not check_phasepolybox_angles(ppb2)
 
 
 def test_conditional_counting() -> None:
@@ -69,7 +70,7 @@ def test_conditional_counting() -> None:
         condition_bits=[Bit(1)],
         condition_value=0,
     )
-    assert get_n_conditional_paulis(circ) == 2
+    assert get_n_conditional_xpaulis(circ) == 2
 
 
 circuit_files = glob("qasm/*.qasm")
@@ -81,3 +82,4 @@ def test_t_replacement(qasm_file: str) -> None:
     phase_poly_circ = circuit_from_qasm(qasm_file)
     REPLACE_T_WITH_RZ.apply(phase_poly_circ)
     assert CNOT_RZ_PREDICATE.verify(phase_poly_circ)
+
