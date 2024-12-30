@@ -114,7 +114,7 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
 REPLACE_HADAMARDS = CustomPass(gadgetise_hadamards)
 
 
-def replace_measures(circ: Circuit) -> Circuit:
+def replace_conditionals(circ: Circuit) -> Circuit:
     circ_prime = initialise_registers(circ)
 
     for cmd in circ:
@@ -143,4 +143,4 @@ def replace_measures(circ: Circuit) -> Circuit:
     return circ_prime
 
 
-REPLACE_MEASURES = CustomPass(replace_measures)
+REPLACE_CONDITIONALS = CustomPass(replace_conditionals)
