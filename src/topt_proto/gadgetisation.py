@@ -111,3 +111,36 @@ def gadgetise_hadamards(circ: Circuit) -> Circuit:
 
 
 REPLACE_HADAMARDS = CustomPass(gadgetise_hadamards)
+
+
+def replace_measures(circ: Circuit) -> Circuit:
+    circ_prime = initialise_registers(circ)
+
+    for cmd in circ:
+        match cmd.op.type:
+            case OpType.Measure:
+                control_qubit = cmd.qubits[0]
+                continue
+
+            case OpType.Conditional:
+                if cmd.op.width != 1:
+                    raise NotImplementedError(
+                        "Replacement not implemented for more than one control bit."
+                    )
+                base_op = cmd.op.op
+                if base_op.type == OpType.X:
+                    target_qubit = cmd.qubits[0]
+                    circ_prime.CX(control_qubit, target_qubit)
+                else:
+                    raise NotImplementedError(
+                        f"Replacement for {base_op.type} not implemented."
+                    )
+            case OpType.Barrier:
+                circ_prime.add_barrier(cmd.qubits)
+            case _:
+                circ_prime.add_gate(cmd.op, cmd.args)
+
+    return circ_prime
+
+
+REPLACE_MEASURES = CustomPass(replace_measures)

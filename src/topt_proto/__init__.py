@@ -10,6 +10,7 @@ from .gadgetisation import (
     gadgetise_hadamards,
     get_n_internal_hadamards,
     get_clifford_boundary,
+    REPLACE_MEASURES,
 )
 from .utils import (
     check_phasepolybox,
@@ -19,7 +20,6 @@ from .utils import (
     reverse_circuit,
     tensor_from_x_index,
     REPLACE_T_WITH_RZ,
-    REPLACE_MEASURES,
 )
 
 __all__ = [
