@@ -3,6 +3,7 @@ from __future__ import annotations
 from pytket._tket.circuit import CircBox, Circuit, Command, OpType
 from pytket.passes import CustomPass
 from pytket.predicates import GateSetPredicate
+from topt_proto.utils import initialise_registers
 
 FSWAP_CIRC = Circuit(2, name="FSWAP").CZ(0, 1).SWAP(0, 1)
 
