@@ -140,6 +140,8 @@ def replace_conditionals(circ: Circuit) -> Circuit:
             case _:
                 circ_prime.add_gate(cmd.op, cmd.args)
 
+    circ_prime.remove_blank_wires()
+
     return circ_prime
 
 
