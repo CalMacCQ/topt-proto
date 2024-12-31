@@ -62,6 +62,7 @@ def test_h_gadgetisation(circ: Circuit) -> None:
         == circ.n_gates_of_type(OpType.Conditional)
         == 0
     )
+    assert circ.n_bits == 0
 
 
 # QFT circuit builder function, used in testing.
@@ -99,3 +100,4 @@ def test_gadgetisation_qft(n_qubits: int) -> None:
         == qft_circ.n_gates_of_type(OpType.Conditional)
         == 0
     )
+    assert qft_circ.n_bits == 0
