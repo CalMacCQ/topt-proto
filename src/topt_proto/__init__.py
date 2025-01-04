@@ -10,8 +10,8 @@ from .gadgetisation import (
     gadgetise_hadamards,
     get_n_internal_hadamards,
     get_clifford_boundary,
-    REPLACE_CONDITIONALS,
 )
+
 from .utils import (
     check_phasepolybox,
     check_rz_angles,
@@ -39,5 +39,4 @@ __all__ = [
     "reverse_circuit",
     "tensor_from_x_index",
     "REPLACE_T_WITH_RZ",
-    "REPLACE_CONDITIONALS",
 ]
