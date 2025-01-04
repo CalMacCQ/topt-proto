@@ -1,6 +1,6 @@
 import pytest
 
-from pytket.circuit import Circuit, OpType
+from pytket.circuit import Circuit
 from pytket.passes import DecomposeBoxes, ComposePhasePolyBoxes
 
 from topt_proto.gadgetisation import (
