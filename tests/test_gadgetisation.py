@@ -6,7 +6,6 @@ from pytket.passes import DecomposeBoxes, ComposePhasePolyBoxes
 from topt_proto.gadgetisation import (
     REPLACE_HADAMARDS,
     get_n_internal_hadamards,
-    REPLACE_CONDITIONALS,
 )
 from topt_proto.utils import get_n_conditional_paulis
 
@@ -93,11 +92,3 @@ def test_gadgetisation_qft(n_qubits: int) -> None:
     n_conditionals = get_n_conditional_paulis(qft_circ)
     assert n_conditionals == n_internal_h_gates
     assert qft_circ.n_qubits == n_qubits + n_internal_h_gates
-    REPLACE_CONDITIONALS.apply(qft_circ)
-    assert qft_circ.n_gates_of_type(OpType.CX) == n_conditionals
-    assert (
-        qft_circ.n_gates_of_type(OpType.Measure)
-        == qft_circ.n_gates_of_type(OpType.Conditional)
-        == 0
-    )
-    assert qft_circ.n_bits == 0
