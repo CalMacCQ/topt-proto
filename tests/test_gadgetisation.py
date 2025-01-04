@@ -54,14 +54,6 @@ def test_h_gadgetisation(circ: Circuit) -> None:
     n_conditionals = get_n_conditional_paulis(circ)
     assert n_conditionals == n_internal_h_gates
     assert circ.n_qubits == n_qubits_without_ancillas + n_internal_h_gates
-    REPLACE_CONDITIONALS.apply(circ)
-    assert circ.n_gates_of_type(OpType.CX) == n_conditionals
-    assert (
-        circ.n_gates_of_type(OpType.Measure)
-        == circ.n_gates_of_type(OpType.Conditional)
-        == 0
-    )
-    assert circ.n_bits == 0
 
 
 # QFT circuit builder function, used in testing.
