@@ -7,16 +7,12 @@ authors = [
     { name = "CalMacCQ", email = "93673602+CalMacCQ@users.noreply.github.com" },
 ]
 requires-python = ">=3.11"
-dependencies = ["pytket>=1.37.0", "pytket-qiskit>=0.62.0"]
+dependencies = ["pytket>=2.8.0", "pytket-qiskit>=0.62.0"]
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-lint = [
-    "ruff>=0.8.4",
-]
-test = [
-    "pytest>=8.3.4",
-]
+lint = ["ruff>=0.8.4"]
+test = ["pytest>=8.3.4"]
